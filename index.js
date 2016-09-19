@@ -8,6 +8,8 @@ var weatherStationService;
 var WeatherConditionValue
 var WeatherCondition
 var WeatherStation
+var temperatureService;
+var humidityService;
 
 module.exports = function (homebridge) {
     Service = homebridge.hap.Service;
@@ -80,7 +82,24 @@ WUWeatherStation.prototype = {
     },
 
     getServices: function () {
-        return [this.informationService, this.weatherStationService];
+	
+        temperatureService = new Service.TemperatureSensor(this.name);
+        temperatureService
+                .getCharacteristic(Characteristic.CurrentTemperature)
+
+        temperatureService
+                .getCharacteristic(Characteristic.CurrentTemperature)
+                .setProps({minValue: -50});
+        
+        temperatureService
+                .getCharacteristic(Characteristic.CurrentTemperature)
+                .setProps({maxValue: 50});
+
+        humidityService = new Service.HumiditySensor(this.name);
+        humidityService
+                .getCharacteristic(Characteristic.CurrentRelativeHumidity)
+
+        return [this.informationService, this.weatherStationService, temperatureService, humidityService];
     },
 	
 	updateWeatherConditions: function() {
@@ -118,6 +137,8 @@ WUWeatherStation.prototype = {
 				that.weatherStationService.setCharacteristic(WeatherCondition,that.condition);
 				that.weatherStationService.setCharacteristic(Characteristic.CurrentTemperature, that.temperature);
 				that.weatherStationService.setCharacteristic(Characteristic.CurrentRelativeHumidity, that.humidity);
+				temperatureService.setCharacteristic(Characteristic.CurrentTemperature, that.temperature);
+				humidityService.setCharacteristic(Characteristic.CurrentRelativeHumidity, that.humidity);
 			} else {
 				that.log("Error retrieving the weather conditions")
 			}
