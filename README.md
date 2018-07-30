@@ -64,7 +64,7 @@ With the eve app you can view the history for
 
 ## Choose your weather service
 
-This plugin supports multiple weather services. Each has it's own advantages. The following table shows a comparison to help you choosing one. You can add more services easily by forking the project and submitting a pull request.
+This plugin supports multiple weather services. Each has it's own advantages. The following table shows a comparison to help you choosing one.
 
 |                            |            Dark Sky (recommended)            |                   Weather Underground (legacy)                   |
 |----------------------------|:--------------------------------------------:|:----------------------------------------------------------------:|
@@ -75,6 +75,8 @@ This plugin supports multiple weather services. Each has it's own advantages. Th
 | Personal weather stations  |                      :x:                     |                        :heavy_check_mark:                        |
 | Free                       | :heavy_check_mark:                           | :x: (only legacy accounts)                                       |
 | Register                   | [Here](https://darksky.net/dev/register) | [Here](https://www.wunderground.com/weather/api/) |
+
+*You can add more services by forking the project and submitting a pull request.*
 
 ## Installation
 
@@ -89,10 +91,12 @@ Add one of the following samples to your config file.
 
 ### Dark Sky
 
-The **key** is the API key that you get by registering for a weather service in the table above.
-The **location** must be a list with the latitude longitude for your location (dont forget the square brackets). You can get them by looking up your location on Google Maps, click right and then selecting "What's here?".
+The **key** parameter is the API key that you get by registering for a weather service in the table above.
+
+The **location** parameter must be a list with the latitude longitude for your location (dont forget the square brackets). You can get them by looking up your location on Google Maps, click right and then selecting "What's here?".
 
 The **language** parameter is *optional* and sets the translation for the current condition description. Available languages can be found [here](https://github.com/darkskyapp/translations/tree/master/lib/lang).
+
 The **forecast** parameter is *optional* and defines a list of forcast days to show starting with 1 for today, 2 for tomorrow etc.
 
 ```json
@@ -111,8 +115,9 @@ The **forecast** parameter is *optional* and defines a list of forcast days to s
 
 ### Weather Underground
 
-The **key** is the API key that you get by registering for a weather service in the table above.
-The **location** can be a city name or a zip. You can also use a station from the **[Personal Weather Station Network](https://www.wunderground.com/weatherstation/overview.asp)** to receive weather information. Just enter pws:YOURID.
+The **key** parameter is the API key that you get by registering for a weather service in the table above.
+
+The **location** parameter can be a city name or a zip. You can also use a station from the **[Personal Weather Station Network](https://www.wunderground.com/weatherstation/overview.asp)** to receive weather information. Just enter pws:YOURID.
 
 The **forecast** parameter is *optional* and defines a list of forcast days to show starting with 1 for today, 2 for tomorrow etc.
 
