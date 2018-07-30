@@ -68,11 +68,11 @@ This plugin supports multiple weather services. Each has it's own advantages. Th
 
 |                            |            Dark Sky (recommended)            |                   Weather Underground (legacy)                   |
 |----------------------------|:--------------------------------------------:|:----------------------------------------------------------------:|
-| Current Observation values |                      15                      |                                13                                |
-| Forecast Values            |                      16                      |                                10                                |
-| Forecast Days              |                       7                      |                                 4                                |
+| Current observation values |                      15                      |                                13                                |
+| Forecast values            |                      16                      |                                10                                |
+| Forecast days              |                       7                      |                                 4                                |
 | Location                   |                geo-coordinates               |                         city name or zip                         |
-| Personal Weather Stations  |                      :x:                     |                        :heavy_check_mark:                        |
+| Personal weather stations  |                      :x:                     |                        :heavy_check_mark:                        |
 | Free                       | :heavy_check_mark:                           | :x: (only legacy accounts)                                       |
 | Register                   | [Here](https://darksky.net/dev/register) | [Here](https://www.wunderground.com/weather/api/) |
 
