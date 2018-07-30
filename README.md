@@ -64,7 +64,7 @@ With the eve app you can view the history for
 
 ## Choose your weather service
 
-This plugin supports multiple weather services. Each has it's own advantages. The following table shows a comparison to help you choosing one.
+This plugin supports multiple weather services. Each has it's own advantages. The following table shows a comparison to help you choosing one. You can add more services easily by forking the project and submitting a pull request.
 
 |                            |            Dark Sky (recommended)            |                   Weather Underground (legacy)                   |
 |----------------------------|:--------------------------------------------:|:----------------------------------------------------------------:|
