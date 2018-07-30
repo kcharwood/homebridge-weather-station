@@ -74,7 +74,7 @@ This plugin supports multiple weather services. Each has it's own advantages. Th
 | Location                   |                geo-coordinates               |                         city name or zip                         |
 | Personal weather stations  |                      :x:                     |                        :heavy_check_mark:                        |
 | Free                       | :heavy_check_mark:                           | :x: (only legacy accounts)                                       |
-| Register                   | [Here](https://darksky.net/dev/register) | [Here](https://www.wunderground.com/weather/api/) |
+| Register                   | [here](https://darksky.net/dev/register) | [here](https://www.wunderground.com/weather/api/) |
 
 *You can add more services by forking the project and submitting a pull request.*
 
