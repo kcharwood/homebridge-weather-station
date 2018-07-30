@@ -4,15 +4,15 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/naofireblade/homebridge-weather-plus.svg?style=flat-square)](https://github.com/naofireblade/homebridge-weather-plus)
 [![Weather](https://img.shields.io/badge/weather-sunny-edd100.svg?style=flat-square)](https://github.com/naofireblade/homebridge-weather-plus)
 
-This is a weather plugin for [homebridge](https://github.com/nfarina/homebridge) that features **a lot of** current observations, daily forecasts and history graphs. You can download it via [npm](https://www.npmjs.com/package/homebridge-weather-plus).
+This is a weather plugin for [homebridge](https://github.com/nfarina/homebridge) that features current observations, daily forecasts and history graphs. You can download it via [npm](https://www.npmjs.com/package/homebridge-weather-plus).
 
-If you **update from a version before 2.0.0** you have to adapt your config and select your weather service.
+If you **update from a version before 2.0.0** you have to adapt your config. See the samples below. You might consider switching your weather service to the newly supported dark sky service.
 
 Feel free to leave any feedback [here](https://github.com/naofireblade/homebridge-weather-plus/issues).
 
 ## Current Observations
 
-The following current observation values can be displayed and used in HomeKit rules. Use a 3rd party app like Elgato Eve to see all values, translations and some nice [icons](#screenshot).
+The following **16 current observation values** can be displayed and used in HomeKit rules. Use a 3rd party app like Elgato Eve to see all values, translations and some nice [icons](#screenshots).
 
 - Air Pressure
 - Cloud Cover
@@ -20,8 +20,6 @@ The following current observation values can be displayed and used in HomeKit ru
 - Condition Category (Sun = 0, Clouds = 1, Rain = 2, Snow = 3)
 - Dew Point
 - Humidity
-- Observation Time
-- Observation Station
 - Ozone
 - Rain Last Hour
 - Rain All Day
@@ -32,10 +30,12 @@ The following current observation values can be displayed and used in HomeKit ru
 - Wind Direction
 - Wind Speed
 - Wind Speed Maximum
+- *Observation Time*
+- *Observation Station*
 
 ## Forecast
 
-The plugin also features forecasts for up to 7 days. The following forecast values can be displayed.
+The plugin also features forecasts for up to **7 days**. The following **16 forecast values** can be displayed.
 
 - Air Pressure
 - Cloud Cover
@@ -66,61 +66,73 @@ With the eve app you can view the history for
 
 This plugin supports multiple weather services. Each has it's own advantages. The following table shows a comparison to help you choosing one.
 
-|        | Dark Sky      | Weather Underground  |
-| ------------- |:-------------:| -----:|
-| Free      | :heavy_check_mark: | :x: (only for existing accounts) |
-| Forecast Days | 7      |    4 |
+|                            |            Dark Sky (recommended)            |                   Weather Underground (legacy)                   |
+|----------------------------|:--------------------------------------------:|:----------------------------------------------------------------:|
+| Current Observation values |                      15                      |                                13                                |
+| Forecast Values            |                      16                      |                                10                                |
+| Forecast Days              |                       7                      |                                 4                                |
+| Location                   |                geo-coordinates               |                         city name or zip                         |
+| Personal Weather Stations  |                      :x:                     |                        :heavy_check_mark:                        |
+| Free                       | :heavy_check_mark:                           | :x: (only legacy accounts)                                       |
+| Register                   | [Here](https://darksky.net/dev/register) | [Here](https://www.wunderground.com/weather/api/) |
 
 ## Installation
 
 1. Install homebridge using: `npm install -g homebridge`
 2. Install this plugin using: `npm install -g homebridge-weather-plus`
-
-TODO
-3. Gather a free developer key for Weather Underground [here](http://www.wunderground.com/weather/api/).
+3. Gather an API key for a weather service from the register link in the table above
 4. Update your configuration file. See the samples below.
 
 ## Configuration
 
-Add the following information to your config file. Make sure to add your API **key** and provide your city or postal code in the **location** field.
+Add one of the following samples to your config file.
 
-### Simple
-TODO
+### Dark Sky
+
+The **key** is the API key that you get by registering for a weather service in the table above.
+The **location** must be a list with the latitude longitude for your location (dont forget the square brackets). You can get them by looking up your location on Google Maps, click right and then selecting "What's here?".
+
+The **language** parameter is *optional* and sets the translation for the current condition description. Available languages can be found [here](https://github.com/darkskyapp/translations/tree/master/lib/lang).
+The **forecast** parameter is *optional* and defines a list of forcast days to show starting with 1 for today, 2 for tomorrow etc.
 
 ```json
 "platforms": [
 	{
-		"platform": "WeatherStation",
-		"name": "Weather Station",
+		"platform": "WeatherPlus",
+		"name": "WeatherPlus",
+		"service": "darksky",
 		"key": "XXXXXXXXXXXXXXX",
-		"location": "78613"
+		"location": [57.322956, -4.424380],
+		"language": "en",
+		"forecast": [1,2,3,4,5,6,7]
+	}
+]
+```
+
+### Weather Underground
+
+The **key** is the API key that you get by registering for a weather service in the table above.
+The **location** can be a city name or a zip. You can also use a station from the **[Personal Weather Station Network](https://www.wunderground.com/weatherstation/overview.asp)** to receive weather information. Just enter pws:YOURID.
+
+The **forecast** parameter is *optional* and defines a list of forcast days to show starting with 1 for today, 2 for tomorrow etc.
+
+
+```json
+"platforms": [
+	{
+		"platform": "WeatherPlus",
+		"name": "WeatherPlus",
+		"service": "weatherunderground",
+		"key": "XXXXXXXXXXXXXXX",
+		"location": "New York",
+		"forecast": [1,2,3,4]
 	}
 ]
 ```
 
 ### Advanced
-TODO
 
-The following config contains advanced optional settings that must not be specified.
-
-The parameter **interval** sets the interval (minutes) in which the weather will be updated from Weather Underground. The default value is 4 minutes, which fits in the maximum of 400 updates per day for free accounts.
-
-The parameter **forecast** sets which forecasts you want to see. You can set one of these three values: none, today, 3days. The default value is 3days.
-
-You can also use a station from the **[Personal Weather Station Network](https://www.wunderground.com/weatherstation/overview.asp)** to receive weather information. Just enter pws:YOURID in the **location** parameter.
-
-```json
-"platforms": [
-	{
-		"platform": "WeatherStation",
-		"name": "Weather Station",
-		"key": "XXXXXXXXXXXXXXX",
-		"location": "pws:ICALIFOR123",
-		"interval": "4",
-		"forecast": "3days"
-	}
-]
-```
+You can add the parameter **interval** to set the update interval in minutes. The default value is 4 minutes.
 
 ## Example use cases
 
@@ -135,7 +147,6 @@ You can also use a station from the **[Personal Weather Station Network](https:/
 >(c) Screenshots are taken from the Elgato Eve app
 
 ## Contributors
-TODO
 Many thanks go to
 - [Kevin Harwood](https://github.com/kcharwood) for his original homebridge-weather-station
 - [Clark Endrizzi](https://github.com/cendrizzi) for his wundergroundnode library
@@ -144,5 +155,6 @@ Many thanks go to
 
 This plugin is a fork of [homebridge-weather-station](https://github.com/kcharwood/homebridge-weather-station) which is no longer being developed. That one is a fork of [homebridge-wunderground](https://www.npmjs.com/package/homebridge-wunderground).
 
-
-TODO Link so services
+## Attribution
+- [Powered by Dark Sky](https://darksky.net/poweredby/)
+- [Powered Weather Underground](https://www.wunderground.com/)
