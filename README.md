@@ -6,7 +6,7 @@
 
 This is a weather plugin for [homebridge](https://github.com/nfarina/homebridge) that features **a lot of** current observations, daily forecasts and history graphs. You can download it via [npm](https://www.npmjs.com/package/homebridge-weather-plus).
 
-If you **update from a version before 2.0.0** you have to adapt your config and select your desired weather service.
+If you **update from a version before 2.0.0** you have to adapt your config and select your weather service.
 
 Feel free to leave any feedback [here](https://github.com/naofireblade/homebridge-weather-plus/issues).
 
@@ -66,7 +66,10 @@ With the eve app you can view the history for
 
 This plugin supports multiple weather services. Each has it's own advantages. The following table shows a comparison to help you choosing one.
 
-TODO
+|        | Dark Sky      | Weather Underground  |
+| ------------- |:-------------:| -----:|
+| Free      | :heavy_check_mark: | :x: (only for existing accounts) |
+| Forecast Days | 7      |    4 |
 
 ## Installation
 
