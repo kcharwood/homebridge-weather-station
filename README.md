@@ -95,7 +95,7 @@ The **key** parameter is the API key that you get by registering for a weather s
 
 The **location** parameter must be a list with the latitude longitude for your location (dont forget the square brackets). You can get them by looking up your location on Google Maps, click right and then selecting "What's here?".
 
-The **language** parameter is *optional* and sets the translation for the current condition description. Available languages can be found [here](https://github.com/darkskyapp/translations/tree/master/lib/lang). Default is en.
+The **language** parameter is *optional* and sets the translation for the description of the current day and condition. Available languages can be found [here](https://github.com/darkskyapp/translations/tree/master/lib/lang). Default is en.
 
 The **forecast** parameter is *optional* and defines a list of forecast days to show starting with 1 for today, 2 for tomorrow etc. Default are none.
 
