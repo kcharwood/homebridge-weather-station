@@ -4,83 +4,114 @@ const DarkSky = require('dark-sky'),
     converter = require('../util/converter'),
     moment = require('moment-timezone'),
 
-    reportCharacteristics = [
-        'AirPressure',
-        'CloudCover',
-        'Condition',
-        'ConditionCategory',
-        'DewPoint',
-        'Humidity',
-        'ObservationTime',
-        'Ozone',
-        'Rain1h',
-        'RainDay',
-        'Temperature',
-        'UVIndex',
-        'Visibility',
-        'WindDirection',
-        'WindSpeed',
-        'WindSpeedMax'],
+    attribution = 'Powered by Dark Sky',
+    reportCharacteristics =
+        [
+            'AirPressure',
+            'CloudCover',
+            'Condition',
+            'ConditionCategory',
+            'DewPoint',
+            'Humidity',
+            'ObservationTime',
+            'Ozone',
+            'Rain1h',
+            'RainDay',
+            'Temperature',
+            'UVIndex',
+            'Visibility',
+            'WindDirection',
+            'WindSpeed',
+            'WindSpeedMax'
+        ],
+    forecastCharacteristics =
+        [
+            'AirPressure',
+            'CloudCover',
+            'Condition',
+            'ConditionCategory',
+            'DewPoint',
+            'ForecastDay',
+            'Humidity',
+            'Ozone',
+            'RainChance',
+            'RainDay',
+            'Temperature',
+            'TemperatureMin',
+            'UVIndex',
+            'Visibility',
+            'WindDirection',
+            'WindSpeed',
+            'WindSpeedMax'
+        ],
+    forecastDays = 7;
 
-    forecastCharacteristics = [
-        'AirPressure',
-        'CloudCover',
-        'Condition',
-        'ConditionCategory',
-        'DewPoint',
-        'ForecastDay',
-        'Humidity',
-        'Ozone',
-        'RainChance',
-        'RainDay',
-        'Temperature',
-        'TemperatureMin',
-        'UVIndex',
-        'Visibility',
-        'WindDirection',
-        'WindSpeed',
-        'WindSpeedMax'];
+var debug,
+    log,
+    cache = {
+        report: {},
+        forecast: {
+            day0: {},
+            day1: {},
+            day2: {},
+            day3: {},
+            day4: {},
+            day5: {},
+            day6: {}
+        }
+    };
 
-var debug;
-
-var init = function (apiKey, language, units, location, d) {
+var init = function (apiKey, language, location, l, d) {
     this.darksky = new DarkSky(apiKey);
     this.darksky.options({
         latitude: location[0],
         longitude: location[1],
         language: language,
-        units: units,
+        units: 'ca',
         exclude: ['minutely', 'hourly', 'alerts', 'flags']
     });
+    log = l;
     debug = d;
+    moment.locale(language);
+
+    this.darkskyTimeMachine = new DarkSky(apiKey);
+    this.darkskyTimeMachine.options({
+        latitude: location[0],
+        longitude: location[1],
+        language: language,
+        units: 'ca',
+        exclude: ['currently', 'minutely', 'daily', 'alerts', 'flags']
+    });
 };
 
 var update = function (callback) {
-    debug("Updating weather with dark sky");
-
     let weather = {};
     weather.forecasts = [];
+    let that = this;
 
-    this.darksky.get()
-        .then(function (response) {
-            // Current weather report
-            weather.report = parseReport(response['currently'], response['timezone']);
+    updateCache(this.darkskyTimeMachine, function () {
+        debug("Updating weather with dark sky");
+        that.darksky.get()
+            .then(function (response) {
 
-            // Forecasts for today and next 3 days
-            weather.forecasts.push(parseForecast(response['daily']['data'][0]));
-            weather.forecasts.push(parseForecast(response['daily']['data'][1]));
-            weather.forecasts.push(parseForecast(response['daily']['data'][2]));
-            weather.forecasts.push(parseForecast(response['daily']['data'][3]));
-            weather.forecasts.push(parseForecast(response['daily']['data'][4]));
-            weather.forecasts.push(parseForecast(response['daily']['data'][5]));
-            weather.forecasts.push(parseForecast(response['daily']['data'][6]));
-            callback(null, weather);
-        })
-        .catch(function (error) {
-            debug("Error retrieving weather from dark sky");
-            debug("Error Message: " + error);
-            callback(error);
-        });
+                // Current weather report
+                response['currently']['rainDay'] = cache.report.rainDay; // Load rainDay from cache
+                weather.report = parseReport(response['currently'], response['timezone']);
+
+                // Forecasts for today and next 6 days
+                for (let i = 0; i <= 6; i++) {
+                    response['daily']['data'][i]['rainDay'] = cache.forecast['day' + i].rainDay; // Load rainDay from cache
+                    weather.forecasts.push(parseForecast(response['daily']['data'][i], response['timezone']));
+                }
+
+                callback(null, weather);
+            })
+            .catch(function (error) {
+                log.error("Error retrieving weather report and forecast");
+                log.error("Error Message: " + error);
+                callback(error);
+            });
+    });
 };
 
 var parseReport = function (values, timezone) {
@@ -94,10 +125,8 @@ var parseReport = function (values, timezone) {
     report.Humidity = parseInt(values['humidity'] * 100);
     report.ObservationTime = moment.unix(values['time']).tz(timezone).format('HH:mm:ss');
     report.Ozone = parseInt(values['ozone']);
-    // TODO Check
     report.Rain1h = isNaN(parseInt(values['precipIntensity'])) ? 0 : parseInt(values['precipIntensity']);
-    // TODO Replace with time machine accumulated precip
-    report.RainDay = isNaN(parseInt(values['precipIntensity'])) ? 0 : parseInt(values['precipIntensity']);
+    report.RainDay = values['rainDay']
     report.Temperature = values['temperature'];
     report.UVIndex = isNaN(parseInt(values['uvIndex'])) ? 0 : parseInt(values['uvIndex']);
     report.Visibility = isNaN(parseInt(values['visibility'])) ? 0 : parseInt(values['visibility']);
@@ -106,9 +135,9 @@ var parseReport = function (values, timezone) {
     report.WindSpeedMax = parseFloat(values['windGust']);
 
     return report;
-}
+};
 
-var parseForecast = function (values) {
+var parseForecast = function (values, timezone, i) {
     let forecast = {};
 
     forecast.AirPressure = parseInt(values['pressure']);
@@ -116,13 +145,11 @@ var parseForecast = function (values) {
     forecast.Condition = values['summary'];
     forecast.ConditionCategory = converter.getConditionCategory(values['icon']);
     forecast.DewPoint = parseInt(values['dewPoint']);
-    // TODO
-    forecast.ForecastDay = 'blub';
+    forecast.ForecastDay = moment.unix(values['time']).tz(timezone).format('dddd');
     forecast.Humidity = parseInt(values['humidity'] * 100);
     forecast.Ozone = parseInt(values['ozone']);
     forecast.RainChance = parseInt(values['precipProbability'] * 100);
-    // TODO Replace with time machine accumulated precip
-    forecast.RainDay = isNaN(parseInt(values['precipIntensity'])) ? 0 : parseInt(values['precipIntensity']);
+    forecast.RainDay = values['rainDay']
     forecast.Temperature = values['temperatureHigh'];
     forecast.TemperatureMin = values['temperatureLow'];
     forecast.UVIndex = isNaN(parseInt(values['uvIndex'])) ? 0 : parseInt(values['uvIndex']);
@@ -134,9 +161,67 @@ var parseForecast = function (values) {
     return forecast;
 };
 
+var updateCache = function (api, callback) {
+//3600000
+    if (typeof cache.lastUpdate === 'undefined' || new Date() - this.lastUpdate > 600000) {
+        debug("Called hourly update of rain data");
+        cache.lastUpdate = new Date();
+
+        let now = moment();
+        let callbacks = 8;
+
+        doTimeMachineRequest(api, now, function (result) {
+            cache.report.rainDay = result;
+            callbacks--;
+            if (callbacks == 0) {
+                callback();
+            }
+        }, true);
+
+        for (let i = 0; i <= 6; i++) {
+            doTimeMachineRequest(api, now.clone().add(i, 'd'), function (result) {
+                cache.forecast['day' + i].rainDay = result;
+                callbacks--;
+                if (callbacks == 0) {
+                    callback();
+                }
+            });
+        }
+    }
+    else{
+        callback();
+    }
+};
+
+var doTimeMachineRequest = function (api, now, callback, limit = false) {
+    api.time(now.valueOf())
+        .get()
+        .then(function (response) {
+
+            // Current hour in time zone of weather location
+            let hour = 24;
+            if (limit) {
+                hour = now.tz(response['timezone']).format('H');
+            }
+
+            // Sum all values for the requested day
+            debug("Accumulate rain for " + now.tz(response['timezone']).format('dddd') + (limit ? (' until ' + hour + ':00') : ''));
+            let result = converter.getRainAccumulated(response['hourly']['data'].slice(0, hour), 'precipIntensity');
+            debug("Accumulated rain: " + result);
+            callback(result);
+        })
+        .catch(function (error) {
+            log.error("Error retrieving rain report");
+            log.error("Error Message: " + error);
+            callback(null);
+        });
+};
+
 module.exports = {
     init,
     update,
     reportCharacteristics,
-    forecastCharacteristics
+    forecastCharacteristics,
+    forecastDays,
+    attribution
 };

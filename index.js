@@ -1,5 +1,6 @@
 "use strict";
 const darksky = require('./api/darksky'),
+	weatherunderground = require('./api/weatherunderground'),
 	debug = require('debug')('homebridge-weather-plus');
 
 var Service,
@@ -29,15 +30,21 @@ function WeatherStationPlatform(log, config) {
 	this.config = config;
 	this.key = config['key'];
 	this.location = config['location'];
+	this.forecastDays = ('forecast' in config ? config['forecast'] : []);
+	this.language = ('language' in config ? config['language'] : 'en');
 
-	this.forecastDays = config['forecast'];
-
-	// API
-	this.apiName = config['api'].toLowerCase().replace(/\s/g, '');
-	if (this.apiName === 'darksky') {
-		debug("Using api dark sky");
-		darksky.init(this.key, config['language'], config['units'], this.location, debug);
+	// API Service
+	let service = config['service'].toLowerCase().replace(/\s/g, '');
+	if (service === 'darksky') {
+		debug("Using service dark sky");
+		// TODO adapt unit of characteristics
+		darksky.init(this.key, this.language, this.location, log, debug);
 		this.api = darksky;
+	}
+	else if (service === 'weatherunderground') {
+		debug("Using service weather underground");
+		weatherunderground.init(this.key, this.location, log, debug);
+		this.api = weatherunderground;
 	}
 
 	// Update interval
@@ -54,7 +61,7 @@ WeatherStationPlatform.prototype = {
 		// Add all configured forecast days
 		for (let i = 0; i < this.forecastDays.length; i++) {
 			const day = this.forecastDays[i];
-			if (typeof day === 'number' && (day % 1) === 0 && day >= 1 && day <= 7) {
+			if (typeof day === 'number' && (day % 1) === 0 && day >= 1 && day <= this.api.forecastDays) {
 				this.accessories.push(new ForecastWeatherAccessory(this, day - 1));
 			}
 			else {
@@ -182,7 +189,7 @@ function CurrentConditionsWeatherAccessory(platform) {
 	this.informationService = new Service.AccessoryInformation();
 	this.informationService
 		.setCharacteristic(Characteristic.Manufacturer, "github.com naofireblade")
-		.setCharacteristic(Characteristic.Model, "Weather Plus")
+		.setCharacteristic(Characteristic.Model, this.platform.api.attribution)
 		.setCharacteristic(Characteristic.SerialNumber, this.platform.location);
 
 	// Create history service
@@ -249,7 +256,8 @@ function ForecastWeatherAccessory(platform, day) {
 	this.informationService = new Service.AccessoryInformation();
 	this.informationService
 		.setCharacteristic(Characteristic.Manufacturer, "github.com naofireblade")
-		.setCharacteristic(Characteristic.Model, "Weather Plus")
+		.setCharacteristic(Characteristic.Model, this.platform.api.attribution)
+		.setCharacteristic(Characteristic.SerialNumber, this.platform.location);
 }
 
 ForecastWeatherAccessory.prototype = {

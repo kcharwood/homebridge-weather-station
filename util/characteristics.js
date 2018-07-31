@@ -141,11 +141,11 @@ module.exports = function (homebridge) {
     CustomCharacteristic.Rain1h = function () {
         Characteristic.call(this, 'Rain Last Hour', CustomUUID.Rain1h);
         this.setProps({
-            format: Characteristic.Formats.UINT16,
+            format: Characteristic.Formats.FLOAT,
             unit: "mm",
             maxValue: 50,
             minValue: 0,
-            minStep: 1,
+            minStep: 0.1,
             perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
         });
         this.value = this.getDefaultValue();
@@ -169,11 +169,11 @@ module.exports = function (homebridge) {
     CustomCharacteristic.RainDay = function () {
         Characteristic.call(this, 'Rain All Day', CustomUUID.RainDay);
         this.setProps({
-            format: Characteristic.Formats.UINT16,
+            format: Characteristic.Formats.FLOAT,
             unit: "mm",
-            maxValue: 100,
+            maxValue: 500,
             minValue: 0,
-            minStep: 1,
+            minStep: 0.1,
             perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
         });
         this.value = this.getDefaultValue();

@@ -106,7 +106,16 @@ var getWindDirection = function (degree) {
 	return dir;
 };
 
+var getRainAccumulated = function (array, parameter) {
+	let sum = 0;
+	for (let i = 0; i < array.length; i++) {
+		sum += array[i][parameter];
+	}
+	return sum;
+};
+
 module.exports = {
 	getConditionCategory,
-	getWindDirection
+	getWindDirection,
+	getRainAccumulated
 };
