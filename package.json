@@ -1,23 +1,78 @@
 {
-  "name": "homebridge-weather-station",
-  "version": "0.0.4",
-  "description": "auto updating wunderground weather station",
-  "license": "ISC",
+  "name": "homebridge-weather-plus",
+  "version": "2.4.0",
+  "description": "A comprehensive weather plugin for homekit with current observations, forecasts and history.",
+  "license": "MIT",
   "keywords": [
-    "homebridge-plugin"
+    "homebridge-plugin",
+    "weather-station",
+    "weather",
+    "weather forecast",
+    "forecast",
+    "observations",
+    "history",
+    "weather history",
+    "Air Pressure",
+    "Cloud Cover",
+    "Condition",
+    "Condition Category",
+    "Dew Point",
+    "Humidity",
+    "Ozone",
+    "Rain Chance",
+    "Rain Last Hour",
+    "Rain All Day",
+    "Solar Radiation",
+    "Temperature",
+    "Temperature Min",
+    "Temperature Max",
+    "UV-Index",
+    "Visibility",
+    "Wind Direction",
+    "Wind Speed",
+    "Wind Speed Maximum",
+    "Observation Time",
+    "Observation Station",
+    "yahoo",
+    "openweather",
+    "openweathermap",
+    "dark sky",
+    "weather underground"
   ],
   "engines": {
     "node": ">=0.12.0",
     "homebridge": ">=0.2.0"
   },
   "author": {
-    "name": "Kevin Harwood"
+    "name": "Arne Blumentritt",
+    "email": "arne.blumentritt@gmail.com",
+    "url": "https://github.com/naofireblade"
   },
+  "contributors": [
+    {
+      "name": "David Werth",
+      "email": "werth.david@gmail.com",
+      "url": "https://github.com/werthdavid"
+    },
+    {
+      "name": "Marshall T. Rose",
+      "email": "mrose17@gmail.com",
+      "url": "https://github.com/mrose17"
+    }
+  ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/kcharwood/homebridge-weather-station.git"
+    "url": "https://github.com/naofireblade/homebridge-weather-plus.git"
   },
   "dependencies": {
-    "wundergroundnode": ">=0.9"
+    "dark-sky": "^1.1.4",
+    "debug": "~2.2.0",
+    "fakegato-history": "^0.5.2",
+    "geo-tz": "^4.0.1",
+    "moment-timezone": "^0.5.21",
+    "underscore": "1.8.3",
+    "openweather-apis": "^3.3.5",
+    "request": "^2.88.0",
+    "wundergroundnode": "~0.9"
   }
 }
