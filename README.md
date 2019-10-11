@@ -1,48 +1,271 @@
-# homebridge-weather-station
+# homebridge-weather-plus
+[![npm](https://img.shields.io/npm/v/homebridge-weather-plus.svg?style=flat-square)](https://www.npmjs.com/package/homebridge-weather-plus)
+[![npm](https://img.shields.io/npm/dt/homebridge-weather-plus.svg?style=flat-square)](https://www.npmjs.com/package/homebridge-weather-plus)
+[![GitHub last commit](https://img.shields.io/github/last-commit/naofireblade/homebridge-weather-plus.svg?style=flat-square)](https://github.com/naofireblade/homebridge-weather-plus)
+[![Weather](https://img.shields.io/badge/weather-sunny-edd100.svg?style=flat-square)](https://github.com/naofireblade/homebridge-weather-plus)
 
-This is a weather station plugin for Nfarina's [Homebridge project](https://github.com/nfarina/homebridge),and is a fork of [homebridge-wunderground](https://www.npmjs.com/package/homebridge-wunderground). This fork combines all characterstics into a single service, exposes the current weather conditons, and automatically updates every few minutes.
+This is a weather plugin for [homebridge](https://github.com/nfarina/homebridge) that features current observations, daily forecasts and history graphs for multiple locations and services. You can download it via [npm](https://www.npmjs.com/package/homebridge-weather-plus).  
 
-You can use these values as conditions for triggers or just look at them via HomeKit enabled Apps on your iOS device or even ask Siri for them.
+If you like this plugin, I would be very grateful for your support:
 
-## Weather Conditions
+<a href="https://www.buymeacoffee.com/2D1nUuK36" target="_blank"><img width="140" src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee"></a>
 
-Currently, the current weather conditions are exposed in two properties, `WeatherCondition` and `WeatherConditionValue`. `WeatherCondition` is a read-only string representation of the current weather conditions, and can be one of the Forecast Description Phrases listed on this [page](https://www.wunderground.com/weather/api/d/docs?d=resources/phrase-glossary).
+Feel free to leave any feedback [here](https://github.com/naofireblade/homebridge-weather-plus/issues).
 
-`WeatherConditionValue` is an enum value that currently represents one of three values:
+## Features
+- Get current observations and forecasts for up to 10 days
+- Choose from 4 different weather [services](#choose-your-weather-service)
+- Add [multiple](#multiple-stations-configuration) locations/services
+- See the weather [history](#screenshots) in the Eve App
+- See translations and [icons](#screenshots) in the Eve App
+- Use all values in HomeKit rules with the Eve App
 
-| Condition              | Enum Value			                                                      |
-| -------------------    | -------- |
-| Other   		         | 0 |
-| Rain  			     | 1 |
-| Snow			    	 | 2 |
+## Observations and Forecasts
 
-You can combine this with the [homebridge-suncalc](https://github.com/kcharwood/homebridge-suncalc) to create rules that turn on and off the lights when its raining during the day.
+The following **19 observation and forecast values** can be displayed and used in HomeKit rules.
 
-# Installation
+- Air Pressure
+- Cloud Cover
+- Condition
+- Condition Category (Sun = 0, Clouds = 1, Rain = 2, Snow = 3)
+- Dew Point
+- Humidity
+- Ozone
+- Rain Last Hour
+- Rain All Day
+- Rain Chance
+- Solar Radiation
+- Temperature
+- Temperature Min
+- Temperature Max
+- UV-Index
+- Visibility
+- Wind Direction
+- Wind Speed
+- Wind Speed Maximum
+- *Observation Time*
+- *Observation Station*
+- *Forecast day*
 
-1. Install homebridge using: npm install -g homebridge
-2. Install this plugin using: npm install -g homebridge-weather-station
-3. Update your configuration file. See the sample below.
+## Choose your Weather Service
 
-All you need now is a developer key for Weather Underground which can be easily created [here](http://www.wunderground.com/weather/api/).
+This plugin supports multiple weather services. Each has it's own advantages. The following table shows a comparison to help you choosing one.
 
-# Configuration
+|                            |            Dark Sky (recommended)            |                   OpenWeatherMap                                 |                            Yahoo (currently offline)             |                   Weather Underground (only if you can provide weather data in exchange)                           |
+|----------------------------|:--------------------------------------------:|:----------------------------------------------------------------:|:----------------------------------------------------------------:|:----------------------------------------------------------------:|
+| Current observation values |                      15                      |                                7                                 |                                10                                |                                12                                |
+| Forecast values            |                      16                      |                                9                                 |                                4                                 |                                 0                                |
+| Forecast days              |                       7                      |                                 5                                |                                 10                               |                                 0                                |
+| Location                   |                geo-coordinates               |                city name, city id, geo-coordinates               |                            city name                             |                           station id                             |
+| Personal weather stations  |                      :x:                     |                        :heavy_check_mark:                        |                                :x:                               |                        :heavy_check_mark:                        |
+| Free                       | :heavy_check_mark:                           |                        :heavy_check_mark:                        |                        :heavy_check_mark:                        |           :heavy_check_mark: (only if you own a station)         |
+| Register                   | [here](https://darksky.net/dev/register)     | [here](https://openweathermap.org/appid)                         |                    not needed                                    | [here](https://www.wunderground.com/member/api-keys)             |
 
-Configuration sample:
+*You can add more services by forking the project and submitting a pull request.*
 
+## Installation
 
-Add the following information to your config file.
-Make sure to add your API key and provice your city or postal code.
+1. Install homebridge using: `npm install -g homebridge`
+2. Install this plugin using: `npm install -g homebridge-weather-plus` *Note: The installation might take 5 minutes.*
+3. Gather an API key for a weather service from the register link in the table above
+4. Update your configuration file. See the samples below.
+
+## Configuration
+
+Below are example configurations for all weather apis.
+
+### Dark Sky
+
+The **key** parameter is the API key that you get by registering for the Dark Sky service.
+
+The **locationGeo** parameter must be a list with the latitude longitude for your location (don't forget the square brackets). You can use this page to find your coordinates: http://www.mapcoordinates.net/en.
 
 ```json
-"accessories": [
-	    {
-	      "accessory": "WUWeatherStation",
-	      "name": "Weather Station",
-	      "key": "XXXXXXXXXXXXXXX",
-	      "location": "78613"
-	    }
+"platforms": [
+	{
+		"platform": "WeatherPlus",
+		"name": "WeatherPlus",
+		"service": "darksky",
+		"key": "YOUR_API_KEY",
+		"locationGeo": [52.5200066, 13.404954]
+	}
+]
+```
+
+### OpenWeatherMap
+
+The **key** parameter is the API key that you get by registering for the OpenWeather service
+
+**Please choose from *one* of these location properties.**
+
+The **location** parameter must be a numerical unique city-id (can be found [here](https://openweathermap.org/find))
+
+The **locationCity** parameter must be a city-name with an optional country code e.g. "Berlin, DE" (you can check it [here](https://openweathermap.org/find))
+
+The **locationGeo** parameter must be a list with the latitude longitude for your location (don't forget the square brackets). You can use this page to find your coordinates: http://www.mapcoordinates.net/en.
+
+```json
+"platforms": [
+	{
+		"platform": "WeatherPlus",
+		"name": "WeatherPlus",
+		"service": "openweathermap",
+		"key": "YOUR_API_KEY",
+		"location": 2950159,
+		"locationCity": "Berlin, DE",
+		"locationGeo": [52.5200066, 13.404954]
+	}
+]
+```
+
+### Yahoo
+
+The **location** parameter is a text for finding a location with YQL (see [here](https://developer.yahoo.com/weather/))
+
+```json
+"platforms": [
+	{
+		"platform": "WeatherPlus",
+		"name": "WeatherPlus",
+		"service": "yahoo",
+		"location": "Berlin, DE",
+		"forecast": [1,2,3,4,5,6,7]
+	}
+]
+```
+
+### Weather Underground 
+
+Since March 2019 you need to register your own weather station with Weather Underground to get weather data in exchange. After you registered your weather device ([here](https://www.wunderground.com/member/devices)), you can use the API.
+
+The **location** parameter is your personal StationID. 
+
+The **key** parameter is the API key that you get from ([here](https://www.wunderground.com/member/api-keys))
+
+```json
+"platforms": [
+    {
+        "platform": "WeatherPlus",
+        "name": "WeatherPlus",
+        "service": "weatherunderground",
+        "key": "YOUR_API_KEY",
+        "location": "YOUR_STATION_ID"
+    }
+]
+```
+
+## Advanced Configuration
+
+Below are explanations for all advanced parameters of this plugin. Most parameters are *optional*. 
+
+The **forecast** parameter is *optional* and defines a list of forecast days with 1 for today, 2 for tomorrow etc. Default are none.
+
+The **interval** parameter is *optional* and sets the update interval in minutes. The default is 4 minutes because the rate for free API keys is limited. This parameter is global for all weather accessories.
+
+The **units** parameter is *optional* and sets the conventions used for reporting values. The default is "metric". This parameter is global for all weather accessories. The choices are:
+
+- "si" (or "metric")
+- "us" (or "imperial")
+- "ca" to report wind speeds in km/h instead of m/s
+- "uk" to report visibility in miles and wind speeds in km/h instead of m/s
+
+The **language** parameter is *optional* and sets the translation for the description of the day and the weather report for each API. Available languages can be found [here](https://github.com/darkskyapp/translations/tree/master/lib/lang). The default is en.
+
+The **forecast** parameter is *optional* and defines a list of forecast days with 1 for today, 2 for tomorrow etc. The default is none.
+
+The **displayName** parameter is *optional* and sets the CurrentConditons accessory's name. The default is "Now". **IMPORTANT NOTE:** If setting multiple weather accessories, ensure that each accessory has a unique name, or you will get an error from *homebridge*. If you do not set this parameter the plugin will take care of that.
+
+The **displayNameForecast** parameter is *optional* and sets the Forecast accessories name. If the **forecast** parameter is present, then the names of the forecasts are prefixed with the displayNameForecast parameter. **IMPORTANT NOTE:** If setting multiple weather accessories, ensure that each accessory has a unique name, or you will get an error from *homebridge*. If you do not set this parameter the plugin will take care of that.
+
+The **currentObservations** parameter is *optional* and sets how the 3 current observations temperature, humidity and pressure are displayed. You can choose one of these 2 options:
+
+- "eve" (this combines all 3 values into one row in the eve app but shows nothing in the Apple Home app)
+- "normal" (default, this shows all 3 values in a seperate row in the eve app and shows the temperature in the Apple Home app)
+
+The **fakegatoParameters** parameter is *optional*. By default, history is persisted on filesystem. You can pass your own parameters to *fakegato-history* module using this paramter, in order to change the location of the persisted file or use GoogleDrive persistance. See https://github.com/simont77/fakegato-history#file-system and https://github.com/simont77/fakegato-history#google-drive for more info. **IMPORTANT NOTE:** Do not modify the parameter for the fakegato internal timer.
+
+The **serial** parameter is *optional* and sets the Serial Number of the accessory. If it's not provided the serial number will be set to the **location** if present, or to 999 if not. Note that for proper operation of fakegato when multiple fakegato-enabled weather accessories are present in your system, the serial number must be unique.
+
+### Example
+
+```json
+"platforms": [
+        {
+            "platform": "WeatherPlus",
+            "name": "WeatherPlus",
+            "interval": 5,
+            "displayName":"Conditions OWM",
+            "displayNameForecast":"Forecast OWM",
+            "service": "openweathermap",
+            "key": "XXXXXXXXXXXXXXX",
+            "forecast": [1,2],
+            "locationGeo": [45.4999952, 9.3061655],
+            "serial": "OWM"                        
+        }
     ]
 ```
 
-Location can be any value that wunderground is able to associate with a known location (city, state, zip, etc) 
+## Multiple Stations Configuration
+
+You can set up multiple stations for different locations and/or weather services by putting your configuration in an **stations** array. The parameters **interval** and **units** are global to all accessories, and must be set at the top level. 
+
+### Example
+
+```json
+"platforms": [
+        {
+            "platform": "WeatherPlus",
+            "name": "WeatherPlus",
+            "interval": 5,
+            "units": "si",
+            "stations":[{
+                "displayName":"Conditions OWM",
+                "displayNameForecast":"Forecast OWM",
+                "service": "openweathermap",
+                "key": "YOUR_API_KEY",
+                "forecast": [1,2],
+                "locationGeo": [45.4999952, 9.3061655],
+                "serial": "OWM" 
+            },{
+                "displayName":"Conditions DS",
+                "displayNameForecast":"Forecast DS",
+                "service": "darksky",
+                "key": "YOUR_API_KEY",
+                "forecast": [1,2],
+                "locationGeo": [45.4999952, 9.3061655],
+                "serial": "DS"
+            }]
+        }
+    ]
+```
+
+## Example Use Cases
+
+- Switch on a blue light in the morning when the chance for rain is above 20% today (or white when the forecast condition is snow / yellow when it's sunny).
+- Start your automatic garden irrigation in the evening, depending on the amount of rain today and the forecast for tomorrow.
+
+**Hint:** To trigger rules based on time and weather condition you will need a plugin like [homebridge-delay-switch](https://www.npmjs.com/package/homebridge-delay-switch). Create a dummy switch that resets after some seconds. Set this switch to on with a timed rule. Then create a condition rule that triggers when the switch goes on depending on weather conditions of your choice.
+
+## Screenshots
+![Current Conditions in Elgato Eve app](https://i.imgur.com/ql9t8w0l.png)
+![History graph in Elgato Eve app](https://i.imgur.com/8opO7hel.png)
+>(c) Screenshots are taken from the Elgato Eve app
+
+## Contributors
+Many thanks go to
+- [Kevin Harwood](https://github.com/kcharwood) for his original homebridge-weather-station
+- [Clark Endrizzi](https://github.com/cendrizzi) for his wundergroundnode library
+- [simont77](https://github.com/simont77) for his fakegato-history library, the eve weather emulation, the multiple stations feature and several other great improvements
+- [GatoPharaoh](https://github.com/GatoPharaoh) for his interval option pull request
+- [David Werth](https://github.com/werthdavid) for integrating the OpenWeatherMap and Yahoo apis
+- [Marshall T. Rose](https://github.com/mrose17) for adding support for imperial units and the displayName parameter
+- [Bill Waggoner](https://github.com/ctgreybeard) for his fix for the crashing wunderground api
+- [Russell Sonnenschein](https://github.com/ctgreybeard) for adding the new 2019 weatherunderground api
+
+This plugin is a fork of [homebridge-weather-station](https://github.com/kcharwood/homebridge-weather-station) which is no longer being developed. That one is a fork of [homebridge-wunderground](https://www.npmjs.com/package/homebridge-wunderground).
+
+## Attribution
+- [Powered by Dark Sky](https://darksky.net/poweredby/)
+- [Powered by Weather Underground](https://www.wunderground.com/)
+- [Powered by OpenWeatherMap](https://openweathermap.org/)
+- [Powered by Yahoo](https://yahoo.com/)
